@@ -2,81 +2,90 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Trivia Crack Mobile Clone</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eco-Awareness Community Quiz App</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
 </head>
 <body>
 
-    <!-- Top Status Navigation Bar -->
-    <header class="app-bar">
-        <div class="crowns-container">
-            <span id="crown-art" class="crown disabled">🎨</span>
-            <span id="crown-history" class="crown disabled">📜</span>
-            <span id="crown-science" class="crown disabled">🔬</span>
-            <span id="crown-sports" class="crown disabled">⚽</span>
-            <span id="crown-geography" class="crown disabled">🌍</span>
-            <span id="crown-entertainment" class="crown disabled">🎬</span>
-        </div>
-        <button id="settings-btn" class="icon-btn">⚙️</button>
-    </header>
+    <div id="home-screen" class="app-screen">
+        <div class="logo-placeholder">🌲</div>
+        <h1>Eco-Awareness Quiz</h1>
+        <p>Help support our community green project and test your planet-saving knowledge!</p>
+        <button onclick="goToScreen('level-screen')">START QUIZ</button>
+        <button onclick="goToScreen('settings-screen')">Settings</button>
+    </div>
 
-    <!-- Main Game Window Target Screens -->
-    <main class="game-container">
+    <div id="settings-screen" class="app-screen" style="display: none;">
+        <h2>App Settings</h2>
+        <p>Manage your quiz configurations here.</p>
+        <div style="margin: 20px 0; text-align: left;">
+            <label><input type="checkbox" checked> Sound Effects Enabled</label><br><br>
+            <label><input type="checkbox" id="contrast-toggle" onclick="toggleHighContrast()"> High Contrast / Dark Mode</label>
+        </div>
+        <button onclick="goToScreen('home-screen')">Save and Go Back</button>
+    </div>
+
+    <div id="level-screen" class="app-screen" style="display: none;">
+        <h2>Select a Difficulty Level</h2>
+        <p>Progress through the tiers to earn maximum points!</p>
+        <button onclick="startQuiz(1)">Level 1: Beginner</button>
         
-        <!-- SCREEN 1: Interactive Random Category Selection Wheel -->
-        <section id="wheel-screen" class="screen">
-            <div class="wheel-box">
-                <div class="wheel-pointer">👇</div>
-                <div id="trivia-wheel" class="wheel">
-                    <div class="sector art"><span>🎨</span></div>
-                    <div class="sector entertainment"><span>🎬</span></div>
-                    <div class="sector geography"><span>🌍</span></div>
-                    <div class="sector sports"><span>⚽</span></div>
-                    <div class="sector science"><span>🔬</span></div>
-                    <div class="sector history"><span>📜</span></div>
-                </div>
-            </div>
-            <button id="spin-btn" class="primary-btn">SPIN WHEEL</button>
-            <h2 id="wheel-status">Spin to choose a category!</h2>
-        </section>
+        <button id="level-2-btn" onclick="startQuiz(2)" class="btn-locked">Level 2: Intermediate (Locked)</button>
+        
+        <button onclick="alert('Level 3 is locked! Complete Level 2 first.')" class="btn-locked">Level 3: Advanced (Locked)</button>
+        <br><br>
+        <button onclick="goToScreen('home-screen')" style="background-color: #555;">Go Back Home</button>
+    </div>
 
-        <!-- SCREEN 2: Active Challenge Card View -->
-        <section id="quiz-screen" class="screen hidden">
-            <div class="card">
-                <div id="category-badge" class="badge">Category</div>
-                <h2 id="question-text">Loading question content...</h2>
-                <div id="answer-options" class="options-grid"></div>
-                <button id="next-btn" class="primary-btn hidden">Continue</button>
-            </div>
-        </section>
-
-        <!-- SCREEN 3: End of Game Victory View -->
-        <section id="victory-screen" class="screen hidden">
-            <div class="card victory-card">
-                <h2>🏆 Victory! 🏆</h2>
-                <p>Amazing job! You collected all 6 category crowns and conquered the game!</p>
-                <button id="play-again-btn" class="primary-btn">Play Again</button>
-            </div>
-        </section>
-    </main>
-
-    <!-- Sliding Side Options Menu Drawer -->
-    <div id="settings-panel" class="settings-drawer">
-        <div class="drawer-header">
-            <h3>Game Options</h3>
-            <button id="close-settings" class="icon-btn">❌</button>
+    <div id="quiz-screen" class="app-screen" style="display: none;">
+        <div class="quiz-header">
+            <span id="question-counter">Question 1 of 10</span>
+            <div class="score-board">Score: <span id="live-score">0</span></div>
         </div>
-        <div class="drawer-content">
-            <div class="setting-item">
-                <label for="dark-mode-toggle">Dark Theme Mode</label>
-                <input type="checkbox" id="dark-mode-toggle">
-            </div>
-            <hr class="divider">
-            <div class="setting-item">
-                <button id="reset-game-btn" class="danger-btn">Reset All Progress</button>
-            </div>
+        
+        <div class="progress-container">
+            <div id="progress-bar"></div>
         </div>
+
+        <h3 id="question-text">Question text will load here dynamically...</h3>
+        <div id="options-container">
+            </div>
+    </div>
+
+    <div id="results-screen" class="app-screen" style="display: none;">
+        <div class="logo-placeholder">🏆</div>
+        <h2>Quiz Complete!</h2>
+        <p>Thank you for participating!</p>
+        <div class="final-score-box">
+            Your Final Score: <span id="final-score">0</span>
+        </div>
+        <button onclick="goToScreen('level-screen')">Play Again / Select Level</button>
+        <button onclick="goToScreen('feedback-screen')" style="background-color: #4A6B4C;">Give App Feedback</button>
+    </div>
+
+    <div id="feedback-screen" class="app-screen" style="display: none;">
+        <h2>App Feedback</h2>
+        <p>Help our eco-community improve this application.</p>
+        
+        <div class="form-group">
+            <label for="user-name">Full Name:</label>
+            <input type="text" id="user-name" placeholder="Enter your name">
+        </div>
+        
+        <div class="form-group">
+            <label for="user-rating">App Rating (1 to 5 Stars):</label>
+            <input type="number" id="user-rating" min="1" max="5" placeholder="5">
+        </div>
+        
+        <div class="form-group">
+            <label for="user-comments">Comments / Suggestions:</label>
+            <textarea id="user-comments" rows="4" placeholder="What did you think of the app?"></textarea>
+        </div>
+        
+        <button onclick="submitFeedbackForm()">Submit Feedback</button>
+        <button onclick="goToScreen('results-screen')" style="background-color: #555; margin-top: 5px;">Cancel</button>
     </div>
 
     <script src="script.js"></script>

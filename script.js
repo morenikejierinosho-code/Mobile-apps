@@ -1,217 +1,216 @@
-// Database housing distinct questions mapped to match the wheel setup layout
-const triviaDatabase = {
-    art: [
-        { q: "Who painted the Mona Lisa?", o: ["Vincent van Gogh", "Leonardo da Vinci", "Pablo Picasso", "Claude Monet"], c: "Leonardo da Vinci" },
-        { q: "Which art movement is Salvador Dalí associated with?", o: ["Surrealism", "Cubism", "Impressionism", "Pop Art"], c: "Surrealism" }
-    ],
-    entertainment: [
-        { q: "Which movie features the character Simba?", o: ["Aladdin", "The Lion King", "Tarzan", "Frozen"], c: "The Lion King" },
-        { q: "How many Academy Awards did the movie Titanic win?", o: ["8", "11", "14", "9"], c: "11" }
-    ],
-    geography: [
-        { q: "What is the capital city of France?", o: ["London", "Berlin", "Madrid", "Paris"], c: "Paris" },
-        { q: "Which is the largest ocean on Planet Earth?", o: ["Atlantic Ocean", "Indian Ocean", "Pacific Ocean", "Arctic Ocean"], c: "Pacific Ocean" }
-    ],
-    sports: [
-        { q: "How many players are on a soccer field for one team?", o: ["9", "10", "11", "12"], c: "11" },
-        { q: "Olympic games are held after every how many years?", o: ["2 years", "4 years", "5 years", "3 years"], c: "4 years" }
-    ],
-    science: [
-        { q: "What is the closest planet to the Sun?", o: ["Venus", "Mars", "Mercury", "Earth"], c: "Mercury" },
-        { q: "What is the chemical symbol for water?", o: ["H2O", "CO2", "O2", "NaCl"], c: "H2O" }
-    ],
-    history: [
-        { q: "In which year did World War II end?", o: ["1941", "1943", "1945", "1950"], c: "1945" },
-        { q: "Who was the first President of the United States?", o: ["Abraham Lincoln", "Thomas Jefferson", "George Washington", "John Adams"], c: "George Washington" }
-    ]
-};
+// Local State Properties Tracker
+let currentQuestionIndex = 0;
+let currentScore = 0;
+let activeLevel = 1;        // Tracks whether Level 1 or Level 2 is active
+let level2Unlocked = false; // Tracks level condition status
 
-// Alignment maps managing clockwise wheel sector indices 
-const categoriesOrder = ['art', 'entertainment', 'geography', 'sports', 'science', 'history'];
-
-// Game State profile architecture models
-let earnedCrowns = { art: false, entertainment: false, geography: false, sports: false, science: false, history: false };
-let currentCategory = "";
-let currentQuestion = null;
-let isSpinning = false;
-let currentRotation = 0;
-
-// Gather Interactive DOM references
-const wheel = document.getElementById('trivia-wheel');
-const spinBtn = document.getElementById('spin-btn');
-const wheelStatus = document.getElementById('wheel-status');
-const wheelScreen = document.getElementById('wheel-screen');
-const quizScreen = document.getElementById('quiz-screen');
-const victoryScreen = document.getElementById('victory-screen');
-
-const categoryBadge = document.getElementById('category-badge');
-const questionText = document.getElementById('question-text');
-const answerOptions = document.getElementById('answer-options');
-const nextBtn = document.getElementById('next-btn');
-
-const settingsBtn = document.getElementById('settings-btn');
-const closeSettingsBtn = document.getElementById('close-settings');
-const settingsPanel = document.getElementById('settings-panel');
-const darkModeToggle = document.getElementById('dark-mode-toggle');
-const resetGameBtn = document.getElementById('reset-game-btn');
-const playAgainBtn = document.getElementById('play-again-btn');
-
-// --- 1. LOCALSTORAGE PERSISTENCE ENGINE ---
-function saveGameState() {
-    localStorage.setItem('trivia_crack_crowns', JSON.stringify(earnedCrowns));
-}
-
-function loadGameState() {
-    const saved = localStorage.getItem('trivia_crack_crowns');
-    if (saved) {
-        earnedCrowns = JSON.parse(saved);
-        Object.keys(earnedCrowns).forEach(cat => {
-            if (earnedCrowns[cat]) {
-                const el = document.getElementById(`crown-${cat}`);
-                if (el) {
-                    el.classList.remove('disabled');
-                    el.classList.add('earned');
-                }
-            }
-        });
-        checkVictoryCondition(false); // Evaluate for victory without display jumps instantly
+// Level 1 Complete Bank: 10 Beginner Questions
+const level1Questions = [
+    {
+        question: "Which of these everyday items can be recycled in your home green bin?",
+        options: ["Clean plastic bottles", "Greasy pizza boxes", "Used paper tissues"],
+        correct: 0
+    },
+    {
+        question: "What should you do to a plastic milk carton before throwing it into the recycling bin?",
+        options: ["Paint it", "Rinse it out with water", "Cut it into tiny pieces"],
+        correct: 1
+    },
+    {
+        question: "Which material can be recycled over and over again forever without losing its quality?",
+        options: ["Plastic", "Paper", "Glass"],
+        correct: 2
+    },
+    {
+        question: "What does the famous 'Three R's' eco-slogan stand for?",
+        options: ["Reduce, Reuse, Recycle", "Run, Race, Repeat", "Read, Write, Review"],
+        correct: 0
+    },
+    {
+        question: "Turning old food waste into rich soil for a garden is called what?",
+        options: ["Freezing", "Composting", "Baking"],
+        correct: 1
+    },
+    {
+        question: "Which item takes the longest time to break down if it is thrown into nature as litter?",
+        options: ["An apple core", "A plastic water bottle", "A cardboard box"],
+        correct: 1
+    },
+    {
+        question: "Why is leaving electronics on 'Standby' mode overnight a bad habit?",
+        options: ["It wastes electricity and energy", "It makes the device break immediately", "It makes the screen too bright"],
+        correct: 0
+    },
+    {
+        question: "What is the best eco-friendly alternative to using single-use plastic carrier bags at the supermarket?",
+        options: ["No bags at all, just carry everything", "A reusable cloth or canvas tote bag", "Using a new plastic bag every visit"],
+        correct: 1
+    },
+    {
+        question: "Which of these items should NEVER be put into a regular household recycling bin?",
+        options: ["Shiny aluminium soda cans", "Standard writing paper", "Household batteries"],
+        correct: 2
+    },
+    {
+        question: "What is the main environmental benefit of planting more trees in our local communities?",
+        options: ["They absorb carbon dioxide and clean our air", "They block out too much sunlight", "They make it easier to build roads"],
+        correct: 0
     }
+];
+
+// Level 2 Bank: 5 Intermediate Questions
+const level2Questions = [
+    {
+        question: "What is the primary cause of 'ocean acidification'?",
+        options: ["Excessive plastic dumping", "Ocean water absorbing carbon dioxide (CO2)", "Oil spills from ships"],
+        correct: 1
+    },
+    {
+        question: "Which type of lightbulb is the most energy-efficient for household lighting?",
+        options: ["Incandescent bulbs", "Halogen bulbs", "LED bulbs"],
+        correct: 2
+    },
+    {
+        question: "What term describes water that gathers underground and supplies wells and springs?",
+        options: ["Greywater", "Groundwater", "Blackwater"],
+        correct: 1
+    },
+    {
+        question: "What is the main environmental problem associated with landfill sites?",
+        options: ["They release methane gas", "They create too much noise", "They take up too much farming space"],
+        correct: 0
+    },
+    {
+        question: "Which of these sectors contributes the most greenhouse gas emissions globally?",
+        options: ["Aviation and flying", "Energy production (Electricity & Heat)", "Agriculture and farming"],
+        correct: 1
+    }
+];
+
+// Structural Navigation Routing System
+function goToScreen(screenId) {
+    const screens = document.querySelectorAll('.app-screen');
+    screens.forEach(screen => {
+        screen.style.display = 'none';
+    });
+    document.getElementById(screenId).style.display = 'block';
 }
 
-// --- 2. INTERACTIVE SPINNING WHEEL ENGINE ---
-spinBtn.addEventListener('click', () => {
-    if (isSpinning) return;
-    isSpinning = true;
-    wheelStatus.innerText = "Spinning...";
+// Initialise the active Quiz gameplay
+function startQuiz(level) {
+    // Prevent entry into Level 2 if it's currently locked
+    if (level === 2 && !level2Unlocked) {
+        alert("Level 2 is locked! Score at least 70 points in Level 1 to unlock it.");
+        return;
+    }
 
-    const randomDeg = Math.floor(Math.random() * 360);
-    // Add cumulative calculation values to enforce progressive continuous forward rotations 
-    currentRotation += 1800 + randomDeg; 
+    activeLevel = level;
+    currentQuestionIndex = 0;
+    currentScore = 0;
+    document.getElementById('live-score').innerText = currentScore;
+    goToScreen('quiz-screen');
+    loadQuestion();
+}
+
+// Render dynamic current question node layout to interface
+function loadQuestion() {
+    // Pick the question list based on the active level selection
+    const questionList = (activeLevel === 1) ? level1Questions : level2Questions;
+    const currentQuestion = questionList[currentQuestionIndex];
     
-    // Set transition parameters and transform values dynamically
-    wheel.style.transition = "transform 4s cubic-bezier(0.1, 0.8, 0.1, 1)";
-    wheel.style.transform = `rotate(${currentRotation}deg)`;
+    // Update question count tracker metadata
+    document.getElementById('question-counter').innerText = `Question ${currentQuestionIndex + 1} of ${questionList.length}`;
+    document.getElementById('question-text').innerText = currentQuestion.question;
+    
+    // Dynamic Progress Bar fill calculation logic
+    const progressPercent = (currentQuestionIndex / questionList.length) * 100;
+    document.getElementById('progress-bar').style.width = progressPercent + "%";
 
+    const optionsContainer = document.getElementById('options-container');
+    optionsContainer.innerHTML = ""; // Wipe previous question buttons
+
+    // Map through options array to mount standard user action buttons
+    currentQuestion.options.forEach((option, index) => {
+        const button = document.createElement('button');
+        button.innerText = option;
+        button.onclick = () => checkAnswer(index);
+        optionsContainer.appendChild(button);
+    });
+}
+
+// Evaluate response selections with smooth visual color flashing feedback
+function checkAnswer(selectedIndex) {
+    const questionList = (activeLevel === 1) ? level1Questions : level2Questions;
+    const currentQuestion = questionList[currentQuestionIndex];
+    const optionsContainer = document.getElementById('options-container');
+    const buttons = optionsContainer.getElementsByTagName('button');
+    
+    // Freeze choices to prevent multi-tapping
+    for (let button of buttons) {
+        button.disabled = true;
+    }
+
+    // Calculate score points per question relative to level caps (Max Level 1 is 100, Level 2 is 50)
+    if (selectedIndex === currentQuestion.correct) {
+        currentScore += 10;
+        buttons[selectedIndex].style.backgroundColor = "#2E7D32"; // Green flash
+    } else {
+        buttons[selectedIndex].style.backgroundColor = "#C62828"; // Red flash
+        buttons[currentQuestion.correct].style.backgroundColor = "#2E7D32"; // Highlight correct option
+    }
+    
+    document.getElementById('live-score').innerText = currentScore;
+    
+    // 1.2 second pause before advancing so colors are readable
     setTimeout(() => {
-        isSpinning = false;
-        
-        // Calculate category under pointer (pointer is at top = 0 deg reference)
-        const absoluteDegrees = currentRotation % 360;
-        const normalizedDeg = (360 - absoluteDegrees) % 360;
-        const sectorIndex = Math.floor(normalizedDeg / 60);
-        currentCategory = categoriesOrder[sectorIndex];
-
-        wheelStatus.innerText = `Selected: ${currentCategory.toUpperCase()}!`;
-        
-        setTimeout(() => { launchQuiz(currentCategory); }, 1200);
-    }, 4000);
-});
-
-// --- 3. QUESTIONNAIRE APPLICATION LOGIC ---
-function launchQuiz(category) {
-    wheelScreen.classList.add('hidden');
-    quizScreen.classList.remove('hidden');
-    nextBtn.classList.add('hidden');
-    answerOptions.innerHTML = "";
-
-    // Set dynamic brand background badge tokens
-    const rootStyles = getComputedStyle(document.documentElement);
-    const categoryColor = rootStyles.getPropertyValue(`--color-${category}`).trim();
-    categoryBadge.style.backgroundColor = categoryColor;
-    if(category === "entertainment") {
-        categoryBadge.style.color = "#1c1e21"; // Fix visual reading contrast parameter on yellow badge background
-    } else {
-        categoryBadge.style.color = "#ffffff";
-    }
-    categoryBadge.innerText = category;
-
-    // Pick random question from list array models
-    const questionsList = triviaDatabase[category];
-    currentQuestion = questionsList[Math.floor(Math.random() * questionsList.length)];
-    questionText.innerText = currentQuestion.q;
-
-    // Build option layout nodes
-    currentQuestion.o.forEach(option => {
-        const btn = document.createElement('button');
-        btn.innerText = option;
-        btn.classList.add('option-btn');
-        btn.addEventListener('click', evaluateSelection);
-        answerOptions.appendChild(btn);
-    });
-}
-
-function evaluateSelection(e) {
-    const selectedBtn = e.target;
-    const choice = selectedBtn.innerText;
-    const allButtons = answerOptions.querySelectorAll('.option-btn');
-
-    allButtons.forEach(btn => btn.disabled = true);
-
-    if (choice === currentQuestion.c) {
-        selectedBtn.classList.add('correct');
-        earnedCrowns[currentCategory] = true;
-        
-        const el = document.getElementById(`crown-${currentCategory}`);
-        el.classList.remove('disabled');
-        el.classList.add('earned');
-        saveGameState();
-    } else {
-        selectedBtn.classList.add('wrong');
-        allButtons.forEach(btn => {
-            if (btn.innerText === currentQuestion.c) btn.classList.add('correct');
-        });
-    }
-    nextBtn.classList.remove('hidden');
-}
-
-nextBtn.addEventListener('click', () => {
-    quizScreen.classList.add('hidden');
-    checkVictoryCondition(true);
-});
-
-function checkVictoryCondition(allowNavigation) {
-    const wonGame = Object.values(earnedCrowns).every(val => val === true);
-    if (wonGame) {
-        if (allowNavigation) {
-            victoryScreen.classList.remove('hidden');
-            wheelScreen.classList.add('hidden');
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questionList.length) {
+            loadQuestion();
+        } else {
+            // End of active session array bounds
+            const maxPossible = questionList.length * 10;
+            document.getElementById('final-score').innerText = `${currentScore} / ${maxPossible}`;
+            
+            // Unlocking condition evaluation check: Unlocks if Level 1 score is 70+
+            if (activeLevel === 1 && currentScore >= 70) {
+                level2Unlocked = true;
+                
+                // Repaint the Level 2 interface button states dynamically
+                const lvl2Btn = document.getElementById('level-2-btn');
+                lvl2Btn.classList.remove('btn-locked');
+                lvl2Btn.innerText = "Level 2: Intermediate";
+                
+                alert("Awesome Job! 🎉 You scored 70+ points and unlocked Level 2!");
+            }
+            
+            goToScreen('results-screen');
         }
-    } else if (allowNavigation) {
-        wheelScreen.classList.remove('hidden');
-        wheelStatus.innerText = "Spin to win another crown!";
+    }, 1200);
+}
+
+// Process data collection forms
+function submitFeedbackForm() {
+    const name = document.getElementById('user-name').value;
+    const rating = document.getElementById('user-rating').value;
+    const comments = document.getElementById('user-comments').value;
+
+    if (name.trim() === "" || rating.trim() === "" || comments.trim() === "") {
+        alert("Please completely populate all fields before submitting your data.");
+    } else {
+        alert("Submission Successful!\n\nThank you for helping our community initiative grow!");
+        document.getElementById('user-name').value = "";
+        document.getElementById('user-rating').value = "";
+        document.getElementById('user-comments').value = "";
+        goToScreen('home-screen');
     }
 }
 
-// --- 4. OPTIONS DRAWER MANAGEMENT AND RESETS ---
-settingsBtn.addEventListener('click', () => settingsPanel.classList.add('open'));
-closeSettingsBtn.addEventListener('click', () => settingsPanel.classList.remove('open'));
-
-darkModeToggle.addEventListener('change', (e) => {
-    document.body.classList.toggle('dark-theme', e.target.checked);
-});
-
-const resetAction = () => {
-    earnedCrowns = { art: false, entertainment: false, geography: false, sports: false, science: false, history: false };
-    saveGameState();
-    
-    document.querySelectorAll('.crown').forEach(el => {
-        el.classList.add('disabled');
-        el.classList.remove('earned');
-    });
-    
-    currentRotation = 0;
-    wheel.style.transition = "none";
-    wheel.style.transform = "rotate(0deg)";
-    
-    victoryScreen.classList.add('hidden');
-    quizScreen.classList.add('hidden');
-    wheelScreen.classList.remove('hidden');
-    wheelStatus.innerText = "Spin to choose a category!";
-    settingsPanel.classList.remove('open');
-};
-
-resetGameBtn.addEventListener('click', resetAction);
-playAgainBtn.addEventListener('click', resetAction);
-
-// Run the initialization sequence on load execution
-loadGameState();
+// High Contrast Theme State Toggler Engine
+function toggleHighContrast() {
+    const isChecked = document.getElementById('contrast-toggle').checked;
+    if (isChecked) {
+        document.body.classList.add('high-contrast');
+    } else {
+        document.body.classList.remove('high-contrast');
+    }
+}
