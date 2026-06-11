@@ -3,91 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eco-Awareness Community Quiz App</title>
+    <title>QuizArena App Hub</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
 </head>
 <body>
 
-    <div id="home-screen" class="app-screen">
-        <div class="logo-placeholder">🌲</div>
-        <h1>Eco-Awareness Quiz</h1>
-        <p>Help support our community green project and test your planet-saving knowledge!</p>
-        <button onclick="goToScreen('level-screen')">START QUIZ</button>
-        <button onclick="goToScreen('settings-screen')">Settings</button>
+  <video autoplay loop muted playsinline class="bg-video-stream">
+    <source src="home-bg.mp4" type="video/mp4">
+  </video>
+
+  <div class="config-container">
+    <div class="home-header">
+      <div class="logo-area">
+        <span class="material-symbols-rounded logo-icon">extension</span>
+        <h2 class="config-title">QuizArena</h2>
+      </div>
+      <p class="config-subtitle">BTEC Unit 7 App Build: Interactive Challenge Hub.</p>
     </div>
 
-    <div id="settings-screen" class="app-screen" style="display: none;">
-        <h2>App Settings</h2>
-        <p>Manage your quiz configurations here.</p>
-        <div style="margin: 20px 0; text-align: left;">
-            <label><input type="checkbox" checked> Sound Effects Enabled</label><br><br>
-            <label><input type="checkbox" id="contrast-toggle" onclick="toggleHighContrast()"> High Contrast / Dark Mode</label>
-        </div>
-        <button onclick="goToScreen('home-screen')">Save and Go Back</button>
+    <div class="hub-nav">
+      <button class="nav-tab active" data-target="panel-play">
+        <span class="material-symbols-rounded">play_circle</span> Play
+      </button>
+      <button class="nav-tab" data-target="panel-settings">
+        <span class="material-symbols-rounded">settings</span> Settings
+      </button>
     </div>
 
-    <div id="level-screen" class="app-screen" style="display: none;">
-        <h2>Select a Difficulty Level</h2>
-        <p>Progress through the tiers to earn maximum points!</p>
-        <button onclick="startQuiz(1)">Level 1: Beginner</button>
-        
-        <button id="level-2-btn" onclick="startQuiz(2)" class="btn-locked">Level 2: Intermediate (Locked)</button>
-        
-        <button onclick="alert('Level 3 is locked! Complete Level 2 first.')" class="btn-locked">Level 3: Advanced (Locked)</button>
-        <br><br>
-        <button onclick="goToScreen('home-screen')" style="background-color: #555;">Go Back Home</button>
+    <div id="panel-play" class="hub-panel active">
+      <div class="config-option">
+        <h4 class="option-title">Select Category</h4>
+        <div class="category-options">
+          <button class="category-option active">Programming</button>
+          <button class="category-option">Geography</button>
+          <button class="category-option">Mathematics</button>
+          <button class="category-option">Entertainment</button>
+        </div> 
+      </div>
+
+      <div class="config-option">
+        <h4 class="option-title">Select Difficulty</h4>
+        <div class="difficulty-options">
+          <button class="diff-option active">Easy</button>
+          <button class="diff-option">Hard</button>
+        </div>
+      </div>
+
+      <div class="config-option">
+        <h4 class="option-title">Number of Questions</h4>
+        <div class="question-options">
+          <button class="question-option">5</button>
+          <button class="question-option active">10</button>
+          <button class="question-option">15</button>
+        </div> 
+      </div>
+
+      <button class="start-quiz-btn">Launch Match &#128640;</button>
     </div>
 
-    <div id="quiz-screen" class="app-screen" style="display: none;">
-        <div class="quiz-header">
-            <span id="question-counter">Question 1 of 10</span>
-            <div class="score-board">Score: <span id="live-score">0</span></div>
-        </div>
+    <div id="panel-settings" class="hub-panel">
+      <div class="settings-list">
         
-        <div class="progress-container">
-            <div id="progress-bar"></div>
-        </div>
-
-        <h3 id="question-text">Question text will load here dynamically...</h3>
-        <div id="options-container">
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="material-symbols-rounded">music_note</span>
+            <div>
+              <p class="setting-label">Background Music</p>
+              <p class="setting-desc">Ambient track soundtrack engine</p>
             </div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="sound-toggle-input" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="material-symbols-rounded">dark_mode</span>
+            <div>
+              <p class="setting-label">Dark Mode Theme</p>
+              <p class="setting-desc">Inverts card visual balance layers</p>
+            </div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="theme-toggle-input">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz-container">
+    <header class="quiz-header">
+      <h2 class="quiz-title">Quiz Playground</h2>
+      
+      <div class="quiz-streak">
+        <span>&#128293;</span> <span class="streak-count">0</span> Streak
+      </div>
+
+      <div class="quiz-timer">
+        <span class="material-symbols-rounded">timer</span>
+        <p class="time-duration">15s</p>
+      </div>
+    </header>
+
+    <div class="progress-bar-container">
+      <div class="progress-bar-fill"></div>
     </div>
 
-    <div id="results-screen" class="app-screen" style="display: none;">
-        <div class="logo-placeholder">🏆</div>
-        <h2>Quiz Complete!</h2>
-        <p>Thank you for participating!</p>
-        <div class="final-score-box">
-            Your Final Score: <span id="final-score">0</span>
-        </div>
-        <button onclick="goToScreen('level-screen')">Play Again / Select Level</button>
-        <button onclick="goToScreen('feedback-screen')" style="background-color: #4A6B4C;">Give App Feedback</button>
+    <div class="quiz-content">
+      <h1 class="question-text">Loading question data stream...</h1>
+      <ul class="answer-options"></ul>
     </div>
 
-    <div id="feedback-screen" class="app-screen" style="display: none;">
-        <h2>App Feedback</h2>
-        <p>Help our eco-community improve this application.</p>
-        
-        <div class="form-group">
-            <label for="user-name">Full Name:</label>
-            <input type="text" id="user-name" placeholder="Enter your name">
-        </div>
-        
-        <div class="form-group">
-            <label for="user-rating">App Rating (1 to 5 Stars):</label>
-            <input type="number" id="user-rating" min="1" max="5" placeholder="5">
-        </div>
-        
-        <div class="form-group">
-            <label for="user-comments">Comments / Suggestions:</label>
-            <textarea id="user-comments" rows="4" placeholder="What did you think of the app?"></textarea>
-        </div>
-        
-        <button onclick="submitFeedbackForm()">Submit Feedback</button>
-        <button onclick="goToScreen('results-screen')" style="background-color: #555; margin-top: 5px;">Cancel</button>
+    <div class="quiz-footer">
+      <p class="question-status">Processing sequence...</p>
+      <button class="next-question-btn">
+        Next
+        <span class="material-symbols-rounded">arrow_right_alt</span> 
+      </button>
     </div>
+  </div>
 
-    <script src="script.js"></script>
+  <div class="result-container">
+    <img src="quiz-over.png" alt="Session Over Graphics" class="result-img">
+    <h2 class="result-title">Quiz Session Completed</h2>
+    <div class="result-score-details"></div>
+    <button class="try-again-btn">Return to Menu</button>
+  </div>
+
+  <script src="question.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
