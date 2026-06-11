@@ -281,12 +281,21 @@ tryAgainBtn.addEventListener("click", () => {
     resultContainer.classList.remove("active");
     configContainer.classList.add("active");
     document.querySelector(".progress-bar-fill").style.width = `0%`;
+});
+
+tryAgainBtn.addEventListener("click", () => {
+    resultContainer.classList.remove("active");
+    configContainer.classList.add("active");
+    document.querySelector(".progress-bar-fill").style.width = `0%`;
+});
+
 const feedbackForm = document.getElementById("userFeedbackForm");
 const formSuccessMessage = document.getElementById("formSuccessMessage");
 
 if (feedbackForm) {
     feedbackForm.addEventListener("submit", function(event) {
         event.preventDefault();
+        
         const username = document.getElementById("feedbackName").value;
         const rating = document.getElementById("feedbackRating").value;
         const comments = document.getElementById("feedbackComments").value;
@@ -295,11 +304,12 @@ if (feedbackForm) {
         console.log("Player Name:", username);
         console.log("Star Rating Given:", rating + "/5");
         console.log("Comments Box:", comments);
+        
         feedbackForm.reset();
+        
         formSuccessMessage.style.display = "block";
         setTimeout(() => {
             formSuccessMessage.style.display = "none";
         }, 4000);
     });
 }
-});
