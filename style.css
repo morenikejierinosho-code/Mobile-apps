@@ -720,3 +720,42 @@ body.dark-theme .quiz-content .answer-option:not(.correct):not(.incorrect):hover
 body.dark-theme .toggle-slider {
     background-color: #475569;
 }
+
+.feedback-section label {
+    color: #0f172a;
+    transition: color 0.2s ease;
+}
+
+.feedback-section input,
+.feedback-section select,
+.feedback-section textarea {
+    background-color: #ffffff;
+    color: #0f172a;
+    transition: all 0.2s ease;
+}
+
+.feedback-section input:focus,
+.feedback-section select:focus,
+.feedback-section textarea:focus {
+    outline: none;
+    border-color: #5145BA !important;
+    box-shadow: 0 0 0 3px rgba(81, 69, 186, 0.15);
+}
+
+body.dark-theme .feedback-section h3,
+body.dark-theme .feedback-section label {
+    color: #f8fafc !important;
+}
+
+body.dark-theme .feedback-section input,
+body.dark-theme .feedback-section select,
+body.dark-theme .feedback-section textarea {
+    background-color: #334155 !important;
+    border-color: #475569 !important;
+    color: #f8fafc !important;
+}
+
+body.dark-theme .feedback-section select option {
+    background-color: #334155;
+    color: #f8fafc;
+}
